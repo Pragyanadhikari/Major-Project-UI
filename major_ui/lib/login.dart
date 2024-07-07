@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:major_ui/prediction_page.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -17,7 +18,44 @@ class Login extends StatelessWidget {
         backgroundColor: Colors.blueAccent,
         centerTitle: true,
       ),
-      body: Padding(
+      bottomNavigationBar: const BottomNavBar(),
+      body: const LoginForm(),
+    );
+  }
+}
+
+class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextButton(
+          onPressed: () {
+            // Implement forgot password logic here
+          },
+          child: const Text('Forgot Password?'),
+        ),
+        TextButton(
+          onPressed: () {
+            // Implement new to application logic here
+          },
+          child: const Text('New to Application? Sign Up'),
+        ),
+      ],
+    );
+  }
+}
+
+class LoginForm extends StatelessWidget {
+  const LoginForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -49,27 +87,14 @@ class Login extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Implement your login logic here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PredictionPage()),
+                );
               },
               child: const Text('Login'),
             ),
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    // Implement forgot password logic here
-                  },
-                  child: const Text('Forgot Password?'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Implement new to application logic here
-                  },
-                  child: const Text('New to Application? Sign Up'),
-                ),
-              ],
-            ),
           ],
         ),
       ),
