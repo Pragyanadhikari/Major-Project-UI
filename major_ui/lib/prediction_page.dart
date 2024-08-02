@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'portfolio_page.dart';
 
 class PredictionPage extends StatefulWidget {
   const PredictionPage({super.key});
@@ -17,12 +18,7 @@ class _PredictionPageState extends State<PredictionPage> {
         style: TextStyle(fontSize: 24),
       ),
     ),
-    Center(
-      child: Text(
-        'Portfolio Management Page',
-        style: TextStyle(fontSize: 24),
-      ),
-    ),
+    PortfolioPage(),
   ];
 
   void _onItemTapped(int index) {
