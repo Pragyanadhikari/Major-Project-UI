@@ -147,17 +147,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "STOCK PREDICTION AND PORTFOLIO MANAGEMENT",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        backgroundColor: Colors.blueAccent,
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   title: const Text(
+      //     "STOCK PREDICTION AND PORTFOLIO MANAGEMENT",
+      //     style: TextStyle(
+      //       color: Colors.white,
+      //       fontSize: 16,
+      //     ),
+      //   ),
+      //   backgroundColor: Colors.blueAccent,
+      //   centerTitle: true,
+      // ),
       body: ListView.builder(
         itemCount: _portfolio.length,
         itemBuilder: (context, index) {
@@ -186,25 +186,25 @@ class _PortfolioPageState extends State<PortfolioPage> {
         onPressed: _addStock,
         child: const Icon(Icons.add),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Prediction',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Portfolio Management',
-          ),
-        ],
-        currentIndex: 1,
-        selectedItemColor: Colors.blueAccent,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pop(context);
-          }
-        },
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.bar_chart),
+      //       label: 'Prediction',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.account_balance_wallet),
+      //       label: 'Portfolio Management',
+      //     ),
+      //   ],
+      //   currentIndex: 1,
+      //   selectedItemColor: Colors.blueAccent,
+      //   onTap: (index) {
+      //     if (index == 0) {
+      //       Navigator.pop(context);
+      //     }
+      //   },
+      // ),
     );
   }
 }
