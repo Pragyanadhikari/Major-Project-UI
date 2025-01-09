@@ -1,0 +1,6 @@
+1. Prediction Page:
+    Model Insertion
+
+3. Calculator Page:
+    //Calculation logic left
+
