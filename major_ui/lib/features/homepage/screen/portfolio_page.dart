@@ -206,17 +206,148 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        onPressed: () => openAddBox(docId),
-                        icon: const Icon(Icons.update),
-                      ),
-                      IconButton(
                         onPressed: () {
-                          firestoreService.deleteStock(docId);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Stock deleted: $company')),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Confirm Deletion'),
+                              content: Text(
+                                  'Do you really want to delete this stock?\n\nCompany: $company\nNo. of Stocks: $numberOfStocks'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    firestoreService.deleteStock(docId);
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text('Stock deleted: $company')),
+                                    );
+                                  },
+                                  child: const Text('Delete',
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
                           );
                         },
                         icon: const Icon(Icons.delete),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          // Open an input dialog first
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              String? newCompany = _selectedCompany ?? company;
+                              TextEditingController newStockController =
+                                  TextEditingController(
+                                      text: numberOfStocks.toString());
+
+                              return AlertDialog(
+                                title: const Text('Enter New Stock Details'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    DropdownButtonFormField<String>(
+                                      value: newCompany,
+                                      hint: const Text('Select New Company'),
+                                      items:
+                                          _companyNames.map((String company) {
+                                        return DropdownMenuItem<String>(
+                                          value: company,
+                                          child: Text(company),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        newCompany = newValue;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
+                                    TextField(
+                                      controller: newStockController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        labelText: 'New Number of Stocks',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      if (newCompany != null &&
+                                          newStockController.text.isNotEmpty) {
+                                        int? newStockCount = int.tryParse(
+                                            newStockController.text);
+
+                                        if (newStockCount != null) {
+                                          Navigator.of(context)
+                                              .pop(); // Close input dialog
+
+                                          // Show confirmation dialog with previous and new values
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title:
+                                                  const Text('Confirm Update'),
+                                              content: Text(
+                                                'Do you want to update the stock as follows?\n\n'
+                                                'From: $company ($numberOfStocks stocks)\n'
+                                                'To: $newCompany ($newStockCount stocks)',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    firestoreService
+                                                        .updateStock(
+                                                            docId,
+                                                            newCompany!,
+                                                            newStockCount);
+                                                    Navigator.of(context)
+                                                        .pop(); // Close confirmation dialog
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                          content: Text(
+                                                              'Stock updated successfully')),
+                                                    );
+                                                  },
+                                                  child: const Text('Update',
+                                                      style: TextStyle(
+                                                          color: Colors.green)),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    child: const Text('Next'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.update),
                       ),
                     ],
                   ),
