@@ -1,13 +1,15 @@
-// import 'package:fl_chart/fl_chart.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:major_ui/features/auth/view/screen/login.dart';
 import 'package:major_ui/features/auth/view/widget/app_bar.dart';
 import 'package:major_ui/features/auth/view/widget/navigation_bar.dart';
 import 'package:major_ui/features/homepage/screen/calculator_screen.dart';
 import 'package:major_ui/features/homepage/screen/news_screen.dart';
 import 'package:major_ui/features/homepage/screen/portfolio_page.dart';
-// import 'package:major_ui/services/api_service.dart';
+import 'package:flutter/services.dart'; // For loading local assets
+import 'dart:typed_data';
+import '../repository/prediction_api.dart';
 
 class PredictionPage extends StatefulWidget {
   const PredictionPage({super.key});
@@ -19,10 +21,11 @@ class PredictionPage extends StatefulWidget {
 class _PredictionPageState extends State<PredictionPage> {
   final user = FirebaseAuth.instance.currentUser!;
   int _selectedIndex = 0;
-  String _prediction = 'Prediction will appear here';
-  // List<double> _predictions = [];
+  Map<String, dynamic> _prediction = {};
+  String? _selectedCompany; // Store selected company
+  String _action = ""; // Store the prediction action (Buy, Sell, or Hold)
+  Uint8List? imageBytes;
 
-  // Handles tab navigation
   void _onTabChange(int index) {
     final pages = [
       const PredictionPage(),
@@ -42,98 +45,6 @@ class _PredictionPageState extends State<PredictionPage> {
     }
   }
 
-  // Fetches stock prediction and updates the state
-  // Future<void> _getStockPrediction() async {
-  //   try {
-  //     final result = await ApiService().getPrediction('NULB');
-  //     setState(() {
-  //       _prediction = result['prediction'].toString();
-  //       _predictions = result['historicalPredictions'] != null
-  //           ? List<double>.from(result['historicalPredictions'])
-  //           : [];
-  //     });
-  //   } catch (e) {
-  //     setState(() {
-  //       _prediction = 'Error fetching prediction';
-  //       _predictions = [];
-  //     });
-  //   }
-  // }
-
-  // Generates chart data points
-  // List<FlSpot> _generateChartData() {
-  //   return List.generate(
-  //     _predictions.length,
-  //     (index) => FlSpot(index.toDouble(), _predictions[index]),
-  //   );
-  // }
-
-  // Customizes bottom titles for the graph
-  // AxisTitles _bottomTitles() {
-  //   return AxisTitles(
-  //     sideTitles: SideTitles(
-  //       showTitles: true,
-  //       interval: 1,
-  //       getTitlesWidget: (value, meta) {
-  //         String label = value.toInt() < _predictions.length
-  //             ? 'Day ${value.toInt() + 1}'
-  //             : '';
-  //         return Text(label, style: const TextStyle(fontSize: 12));
-  //       },
-  //     ),
-  //   );
-  // }
-
-  // Builds the line chart for predictions
-  // Widget _buildGraph() {
-  //   if (_predictions.isEmpty) {
-  //     return const Text(
-  //       'No prediction data available',
-  //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  //     );
-  //   }
-
-  //   return SizedBox(
-  //     height: 300,
-  //     child: LineChart(
-  //       LineChartData(
-  //         gridData: FlGridData(show: true),
-  //         titlesData: FlTitlesData(
-  //           bottomTitles: _bottomTitles(),
-  //           leftTitles: AxisTitles(
-  //             sideTitles: SideTitles(
-  //               showTitles: true,
-  //               reservedSize: 40,
-  //               getTitlesWidget: (value, meta) {
-  //                 return Text(
-  //                   value.toStringAsFixed(1),
-  //                   style: const TextStyle(fontSize: 12),
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //         ),
-  //         borderData: FlBorderData(
-  //           show: true,
-  //           border: Border.all(color: Colors.grey, width: 1),
-  //         ),
-  //         lineBarsData: [
-  //           LineChartBarData(
-  //             spots: _generateChartData(),
-  //             isCurved: true,
-  //             color: Colors.blue,
-  //             belowBarData: BarAreaData(
-  //               show: true,
-  //               color: Colors.blue,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Signs the user out and redirects to the login page
   Future<void> signUserOut(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
@@ -147,7 +58,31 @@ class _PredictionPageState extends State<PredictionPage> {
     }
   }
 
-  // Displays an error dialog
+  Future<void> _fetchPrediction() async {
+    if (_selectedCompany == null) {
+      _showErrorDialog(context, "Please select a company first.");
+      return;
+    }
+
+    // Print when the button is pressed
+    print("Fetching prediction for company: $_selectedCompany");
+
+    try {
+      Map<String, dynamic> prediction =
+          await PredictionApi.getPrediction(_selectedCompany!);
+      setState(() {
+        _prediction = prediction;
+        _action = prediction['prediction'];
+        imageBytes = base64Decode(prediction['image'] ??
+            ''); // Store the prediction action (Buy, Sell, or Hold)
+      });
+
+      print("Prediction received: $_prediction"); // Print prediction result
+    } catch (e) {
+      _showErrorDialog(context, "Failed to fetch prediction: $e");
+    }
+  }
+
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -164,7 +99,6 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  // Build the UI of the PredictionPage
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -178,17 +112,16 @@ class _PredictionPageState extends State<PredictionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Disclaimer Box
             _buildDisclaimerBox(width),
             const SizedBox(height: 20),
-            // Get Prediction Button
+            _buildCompanyDropdown(),
+            const SizedBox(height: 20),
             _buildPredictionButton(),
             const SizedBox(height: 20),
-            // Prediction Text
             _buildPredictionText(),
             const SizedBox(height: 30),
-            // Prediction Graph
-            // _buildGraph(),
+            _buildImage(), // Display the image
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -199,7 +132,6 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  // Builds the disclaimer box widget
   Widget _buildDisclaimerBox(double width) {
     return Container(
       width: width,
@@ -216,12 +148,32 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  // Builds the prediction button widget
+  Widget _buildCompanyDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCompany,
+      decoration: const InputDecoration(
+        icon: Icon(Icons.search),
+        labelText: "Select Company",
+        border: OutlineInputBorder(),
+      ),
+      items: ["NUBL", "LLBS"].map((company) {
+        return DropdownMenuItem(
+          value: company,
+          child: Text(company),
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedCompany = value;
+        });
+      },
+    );
+  }
+
   Widget _buildPredictionButton() {
     return Center(
       child: ElevatedButton(
-        // onPressed: _getStockPrediction,
-        onPressed: () {},
+        onPressed: _fetchPrediction,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -231,11 +183,27 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  // Builds the prediction text widget
   Widget _buildPredictionText() {
-    return Text(
-      _prediction,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    String predictionText =
+        _prediction['prediction'] ?? 'No prediction available';
+
+    return Center(
+      child: Text(
+        predictionText,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
+  }
+
+  Widget _buildImage() {
+    if (imageBytes != null && imageBytes!.isNotEmpty) {
+      return Image.memory(imageBytes!);
+    } else {
+      return const Center(
+          child: Text(
+        "Select Company to get prediction result.",
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ));
+    }
   }
 }
