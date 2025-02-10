@@ -11,8 +11,10 @@ class PredictionApi {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return {
-          'prediction': 'Prediction for $company: ${data['action']}',
+          'prediction':
+              'Action to take is  ${data['action']} with confidence of ${data['confidence']}.',
           'image': data['img'], // Base64 image string from API
+          'tft_prediction':'Predicted value is  ${data['tft_predictions']['Predicted Price']} with accuracy of ${data['tft_predictions']['Accuracy']}.',
         };
       } else {
         throw "Error: ${response.reasonPhrase}";

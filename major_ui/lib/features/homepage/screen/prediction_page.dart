@@ -22,8 +22,8 @@ class _PredictionPageState extends State<PredictionPage> {
   final user = FirebaseAuth.instance.currentUser!;
   int _selectedIndex = 0;
   Map<String, dynamic> _prediction = {};
-  String? _selectedCompany; // Store selected company
-  String _action = ""; // Store the prediction action (Buy, Sell, or Hold)
+  Map<String, dynamic> _tftprediction = {};
+  String? _selectedCompany;
   Uint8List? imageBytes;
 
   void _onTabChange(int index) {
@@ -72,9 +72,8 @@ class _PredictionPageState extends State<PredictionPage> {
           await PredictionApi.getPrediction(_selectedCompany!);
       setState(() {
         _prediction = prediction;
-        _action = prediction['prediction'];
-        imageBytes = base64Decode(prediction['image'] ??
-            ''); // Store the prediction action (Buy, Sell, or Hold)
+
+        imageBytes = base64Decode(prediction['image'] ?? '');
       });
 
       print("Prediction received: $_prediction"); // Print prediction result
@@ -118,10 +117,11 @@ class _PredictionPageState extends State<PredictionPage> {
             const SizedBox(height: 20),
             _buildPredictionButton(),
             const SizedBox(height: 20),
-            _buildPredictionText(),
+            _buildRLPredictionText(),
             const SizedBox(height: 30),
             _buildImage(), // Display the image
             const SizedBox(height: 30),
+            _buildTFTPredictionText(),
           ],
         ),
       ),
@@ -183,14 +183,34 @@ class _PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  Widget _buildPredictionText() {
+  Widget _buildRLPredictionText() {
     String predictionText =
         _prediction['prediction'] ?? 'No prediction available';
 
     return Center(
-      child: Text(
-        predictionText,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      child: Column(
+        children: [
+          Text(
+            predictionText,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTFTPredictionText() {
+    String predictionText =
+        _prediction['tft_prediction'] ?? 'No prediction available';
+
+    return Center(
+      child: Column(
+        children: [
+          Text(
+            predictionText,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
