@@ -173,7 +173,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         return AlertDialog(
           title: const Text("Tax Information"),
           content: const Text(
-              "Select 5% if you are selling it within 12 months of buying, else select 7.5%."),
+              "Select 7.5% if you are selling it within 12 months of buying, else select 5%."),
           actions: <Widget>[
             TextButton(
               onPressed: () {

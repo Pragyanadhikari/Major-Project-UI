@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:major_ui/features/auth/view/screen/login.dart';
 import 'package:major_ui/features/auth/view/widget/app_bar.dart';
 import 'package:major_ui/features/auth/view/widget/navigation_bar.dart';
@@ -22,7 +23,7 @@ class _PredictionPageState extends State<PredictionPage> {
   final user = FirebaseAuth.instance.currentUser!;
   int _selectedIndex = 0;
   Map<String, dynamic> _prediction = {};
-  Map<String, dynamic> _tftprediction = {};
+  String? date;
   String? _selectedCompany;
   Uint8List? imageBytes;
 
@@ -72,7 +73,12 @@ class _PredictionPageState extends State<PredictionPage> {
           await PredictionApi.getPrediction(_selectedCompany!);
       setState(() {
         _prediction = prediction;
-
+        if (_prediction.containsKey('date') &&
+            _prediction['date'] is DateTime) {
+          DateTime parsedDate = _prediction['date'];
+          DateFormat dateFormat = DateFormat('yyyy-MM-dd'); // Define format
+          date = dateFormat.format(parsedDate); // Convert DateTime to string
+        }
         imageBytes = base64Decode(prediction['image'] ?? '');
       });
 
@@ -186,10 +192,14 @@ class _PredictionPageState extends State<PredictionPage> {
   Widget _buildRLPredictionText() {
     String predictionText =
         _prediction['prediction'] ?? 'No prediction available';
-
+    String date = _prediction['date'] ?? '';
     return Center(
       child: Column(
         children: [
+          Text(
+            '$date',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           Text(
             predictionText,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -200,8 +210,7 @@ class _PredictionPageState extends State<PredictionPage> {
   }
 
   Widget _buildTFTPredictionText() {
-    String predictionText =
-        _prediction['tft_prediction'] ?? 'No prediction available';
+    String predictionText = _prediction['tft_prediction'] ?? '';
 
     return Center(
       child: Column(

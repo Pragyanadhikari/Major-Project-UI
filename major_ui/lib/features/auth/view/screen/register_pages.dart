@@ -204,7 +204,7 @@ class _RegisterPagesState extends State<RegisterPages> {
                                 builder: (context) => LoginPage()));
                       },
                       child: const Text(
-                        'Register Now.',
+                        'Login Now.',
                         style: TextStyle(
                             color: Colors.blue, fontWeight: FontWeight.bold),
                       ),
