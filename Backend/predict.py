@@ -564,8 +564,7 @@ def predictN():
         if stock_results:
             for stock, details in stock_results.items():
                 tft_results[stock] = details
-        if result["confidence"]=="100.00%":
-            result["confidence"]="67.45%"
+        
         return jsonify({
             "date": next_date.strftime('%Y-%m-%d'),
             "actual_price": next_close,
@@ -674,8 +673,7 @@ def predictL():
             for stock, details in stock_results.items():
                 tft_results[stock] = details
 
-        if result["confidence"]=="100.00%":
-            result["confidence"]="67.45%"
+        
         return jsonify({
             "date": next_date.strftime('%Y-%m-%d'),
             "actual_price": next_close,
